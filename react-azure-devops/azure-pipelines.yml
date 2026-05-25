@@ -29,6 +29,7 @@ stages:
           - script: |
               npm install
               npm run build
+            workingDirectory: react-azure-devops
             displayName: Install & Build
 
           - task: PublishBuildArtifacts@1
