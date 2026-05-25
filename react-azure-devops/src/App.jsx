@@ -8,7 +8,7 @@ function App() {
         <p>
           Learn Azure DevOps CI/CD for a React app with Dev and Production
           environments, approvals, environment variables, and secure
-          deploys..................
+          deploys....................
         </p>
       </header>
 
