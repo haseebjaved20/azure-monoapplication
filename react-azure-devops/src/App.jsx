@@ -1,4 +1,4 @@
-const apiUrl = import.meta.env.VITE_API_URL ?? 'https://api.example.com';
+const apiUrl = import.meta.env.VITE_API_URL ?? "https://api.example.com";
 
 function App() {
   return (
@@ -6,21 +6,25 @@ function App() {
       <header className="hero">
         <h1>react-azure-devops</h1>
         <p>
-          Learn Azure DevOps CI/CD for a React app with Dev and Production environments,
-          approvals, environment variables, and secure deploys.
+          Learn Azure DevOps CI/CD for a React app with Dev and Production
+          environments, approvals, environment variables, and secure
+          deploys.....
         </p>
       </header>
 
       <section className="content-card">
         <h2>Deployment details</h2>
         <p>
-          This app is built for a real-world Azure DevOps pipeline learning path.
-          The pipeline can deploy to Azure App Service using separate environments.
+          This app is built for a real-world Azure DevOps pipeline learning
+          path. The pipeline can deploy to Azure App Service using separate
+          environments.
         </p>
 
         <dl>
           <dt>Environment variable</dt>
-          <dd><code>VITE_API_URL</code></dd>
+          <dd>
+            <code>VITE_API_URL</code>
+          </dd>
           <dt>Resolved API URL</dt>
           <dd>{apiUrl}</dd>
         </dl>
