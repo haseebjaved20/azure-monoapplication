@@ -6,30 +6,55 @@
 trigger:
 - dev   # change to main if needed
 
-pool:
-  vmImage: ubuntu-latest
+stages:
+  - stage: Build
+    displayName: Build React App
+    jobs:
+      - job: Build
+        displayName: Build
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: '20.x'
+            displayName: 'Use Node.js 20'
 
-steps:
-- task: NodeTool@0
-  inputs:
-    versionSpec: '20.x'
-  displayName: 'Use Node.js 20'
+          - script: |
+              cd react-azure-devops
+              npm install
+            displayName: 'Install dependencies'
 
-# Install dependencies inside React folder
-- script: |
-    cd react-azure-devops
-    npm install
-  displayName: 'Install dependencies'
+          - script: |
+              cd react-azure-devops
+              npm run build
+            displayName: 'Build React app'
 
-# Build React app inside folder
-- script: |
-    cd react-azure-devops
-    npm run build
-  displayName: 'Build React app'
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: 'react-azure-devops/dist'
+              artifact: 'react-build'
+            displayName: 'Publish build artifact'
 
-# Publish dist folder (Vite output)
-- task: PublishBuildArtifacts@1
-  inputs:
-    PathtoPublish: 'react-azure-devops/dist'
-    ArtifactName: 'drop'
-  displayName: 'Publish build artifact'
+  - stage: Deploy_Dev
+    displayName: Deploy to DEV
+    dependsOn: Build
+    jobs:
+      - deployment: DeployDev
+        environment: dev
+        pool:
+          vmImage: ubuntu-latest
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - download: current
+                  artifact: react-build
+
+                - task: AzureWebApp@1
+                  inputs:
+                    azureSubscription: 'azure-service-connection'
+                    appType: 'webApp'
+                    appName: 'haseeb-react-dev'
+                    package: '$(Pipeline.Workspace)/react-build'
+                  displayName: 'Deploy to DEV App Service'
