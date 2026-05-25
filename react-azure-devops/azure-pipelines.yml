@@ -27,12 +27,11 @@ stages:
               versionSpec: $(nodeVersion)
 
           - script: |
-              cd react-azure-devops
               npm install
               npm run build
             displayName: Install & Build
 
           - task: PublishBuildArtifacts@1
             inputs:
-              PathtoPublish: 'react-azure-devops/dist'
+              PathtoPublish: 'dist'
               ArtifactName: 'react-build'
