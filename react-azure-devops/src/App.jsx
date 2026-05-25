@@ -6,8 +6,8 @@ function App() {
       <header className="hero">
         <h1>react-azure-devops</h1>
         <p>
-          Learn Azure DevOps CI/CD for a React app with Dev and Production
-          environments, approvals, environment variables, and secure
+          Hey Haseeb! Learn Azure DevOps CI/CD for a React app with Dev and
+          Production environments, approvals, environment variables, and secure
           deploys....................
         </p>
       </header>
