@@ -19,11 +19,21 @@ stages:
               cd react-azure-devops
               npm install
               npm run build
-            displayName: Install & Build
+            displayName: 'Install & Build'
+
+          # Fix 1: Explicitly zip the dist contents so Azure App Service extracts it cleanly
+          - task: ArchiveFiles@2
+            displayName: 'Archive build files'
+            inputs:
+              rootFolderOrFile: 'react-azure-devops/dist'
+              includeRootFolder: false
+              archiveType: 'zip'
+              archiveFile: '$(Build.ArtifactStagingDirectory)/react-build.zip'
+              replaceExistingArchive: true
 
           - task: PublishPipelineArtifact@1
             inputs:
-              targetPath: 'react-azure-devops/dist'
+              targetPath: '$(Build.ArtifactStagingDirectory)/react-build.zip'
               artifact: 'react-build'
 
   - stage: Deploy_Dev
@@ -41,9 +51,12 @@ stages:
                 - download: current
                   artifact: react-build
 
+                # Fix 2: Point directly to the zip file and add deployment configurations
                 - task: AzureWebApp@1
                   inputs:
                     azureSubscription: 'azure-service-connection'
-                    appType: 'webApp'
+                    appType: 'webAppLinux' # Changed to webAppLinux since your screenshot shows Linux
                     appName: 'haseeb-react-dev'
-                    package: '$(Pipeline.Workspace)/react-build'
+                    package: '$(Pipeline.Workspace)/react-build/react-build.zip'
+                    # This ensures Oryx/Azure knows to clean out old files (like hostingstart.html)
+                    appSettings: '-SCM_DO_BUILD_DURING_DEPLOYMENT false'
