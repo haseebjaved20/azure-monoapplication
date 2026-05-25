@@ -1,0 +1,38 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+  branches:
+    include:
+      - dev
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  nodeVersion: '20.x'
+
+stages:
+  - stage: Build
+    displayName: Build React App
+
+    jobs:
+      - job: BuildJob
+
+        steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: $(nodeVersion)
+
+          - script: |
+              cd react-azure-devops
+              npm install
+              npm run build
+            displayName: Install & Build
+
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: 'react-azure-devops/dist'
+              ArtifactName: 'react-build'
