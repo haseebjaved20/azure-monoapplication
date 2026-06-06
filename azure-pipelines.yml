@@ -2,6 +2,7 @@ trigger:
   branches:
     include:
       - dev
+      - release/prod
 
 stages:
   - stage: Build
@@ -21,7 +22,6 @@ stages:
               npm run build
             displayName: 'Install & Build'
 
-          # Fix 1: Explicitly zip the dist contents so Azure App Service extracts it cleanly
           - task: ArchiveFiles@2
             displayName: 'Archive build files'
             inputs:
@@ -41,7 +41,7 @@ stages:
     dependsOn: Build
     jobs:
       - deployment: DeployDev
-        environment: dev
+        environment: 'dev'
         pool:
           vmImage: ubuntu-latest
         strategy:
@@ -51,12 +51,35 @@ stages:
                 - download: current
                   artifact: react-build
 
-                # Fix 2: Point directly to the zip file and add deployment configurations
                 - task: AzureWebApp@1
                   inputs:
                     azureSubscription: 'azure-service-connection'
-                    appType: 'webAppLinux' # Changed to webAppLinux since your screenshot shows Linux
+                    appType: 'webAppLinux'
                     appName: 'haseeb-react-dev'
                     package: '$(Pipeline.Workspace)/react-build/react-build.zip'
-                    # This ensures Oryx/Azure knows to clean out old files (like hostingstart.html)
                     appSettings: '-SCM_DO_BUILD_DURING_DEPLOYMENT false'
+
+  - stage: Deploy_Prod
+    displayName: Deploy to PROD
+    dependsOn: Deploy_Dev
+    condition: eq(variables['Build.SourceBranch'], 'refs/heads/release/prod')
+    jobs:
+      - deployment: DeployProd
+        environment: 'production'
+        pool:
+          vmImage: ubuntu-latest
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - download: current
+                  artifact: react-build
+
+                - task: AzureWebApp@1
+                  inputs:
+                    azureSubscription: 'azure-service-connection'
+                    appType: 'webAppLinux'
+                    appName: 'haseeb-react-prod'
+                    package: '$(Pipeline.Workspace)/react-build/react-build.zip'
+                    appSettings: '-SCM_DO_BUILD_DURING_DEPLOYMENT false'
+            
